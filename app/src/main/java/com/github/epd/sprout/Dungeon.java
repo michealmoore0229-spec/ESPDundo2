@@ -1011,18 +1011,20 @@ public class Dungeon {
 	}
 
 
-	public static void saveLevel() throws IOException {
-		Bundle bundle = new Bundle();
-		bundle.put(LEVEL, level);
+	   	public static void saveLevel() throws IOException {
+   		saveLevel(Utils.format(depthFile(hero.heroClass), depth), depth);
+   	}
 
-		OutputStream output = Game.instance.openFileOutput(
-				Utils.format(depthFile(hero.heroClass), depth),
-				Context.MODE_PRIVATE);
-		Bundle.write(bundle, output);
-		File file = new File(TextureCache.context.getExternalFilesDir(null), Utils.format(depthFile(hero.heroClass), depth));
-		Bundle.writeext(bundle, file);
-		output.close();
-	}
+   	public static void saveLevel(String fileName, int levelDepth) throws IOException {
+   		Bundle bundle = new Bundle();
+   		bundle.put(LEVEL, level);
+
+   		OutputStream output = Game.instance.openFileOutput(fileName, Context.MODE_PRIVATE);
+   		Bundle.write(bundle, output);
+   		File file = new File(TextureCache.context.getExternalFilesDir(null), fileName);
+   		Bundle.writeext(bundle, file);
+   		output.close();
+   	}
 
 	public static void saveAll() throws IOException {
 		if (hero != null && hero.isAlive()) {
@@ -1187,24 +1189,27 @@ public class Dungeon {
 		}
 	}
 
-	public static Level loadLevel(HeroClass cl) throws IOException {
+	   	public static Level loadLevel(HeroClass cl) throws IOException {
+   		return loadLevel(Utils.format(depthFile(cl), depth));
+   	}
 
-		Dungeon.level = null;
-		Actor.clear();
+   	public static Level loadLevel(String fileName) throws IOException {
 
-		InputStream input = Game.instance.openFileInput(Utils.format(
-				depthFile(cl), depth));
-		Bundle bundle = Bundle.read(input);
-		input.close();
+   		Dungeon.level = null;
+   		Actor.clear();
 
-		Level level = (Level) bundle.get("level");
+   		InputStream input = Game.instance.openFileInput(fileName);
+   		Bundle bundle = Bundle.read(input);
+   		input.close();
 
-		if (level == null) {
-			throw new IOException();
-		} else {
-			return level;
-		}
-	}
+   		Level level = (Level) bundle.get("level");
+
+   		if (level == null) {
+   			throw new IOException();
+   		} else {
+   			return level;
+   		}
+   	}
 
 	public static void deleteGame(HeroClass cl, boolean deleteLevels) {
 
