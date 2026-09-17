@@ -35,9 +35,10 @@ import java.util.Locale;
 
 public class Toolbar extends Component {
 
-	private Tool btnWait;
-	private Tool btnSearch;
-	private Tool btnInventory;
+   	private Tool btnWait;
+   	private Tool btnSearch;
+   	private Tool btnUndo;
+   	private Tool btnInventory;
 	private QuickslotTool[] btnQuick;
 
 	private PickedUpItem pickedUp;
@@ -91,6 +92,21 @@ public class Toolbar extends Component {
 				}
 			}
 		});
+
+		
+   		add(btnUndo = new Tool(24, 0, 20, 26) {
+   			@Override
+   			protected void onClick() {
+   				int slot = com.github.epd.sprout.UndoManager.popForUndo();
+   				if (slot != -1) {
+   					examining = false;
+   					com.github.epd.sprout.scenes.InterlevelScene.mode =
+   							com.github.epd.sprout.scenes.InterlevelScene.Mode.UNDO;
+   					com.github.epd.sprout.scenes.InterlevelScene.undoSlot = slot;
+   					Game.switchScene(com.github.epd.sprout.scenes.InterlevelScene.class);
+   				}
+   			}
+   		});
 
 		btnQuick = new QuickslotTool[4];
 
@@ -183,11 +199,12 @@ public class Toolbar extends Component {
 
 		float right = width;
 		switch (Mode.valueOf(ShatteredPixelDungeon.toolbarMode())) {
-			case SPLIT:
-				btnWait.setPos(x, y);
-				btnSearch.setPos(btnWait.right(), y);
+   			case SPLIT:
+   				btnWait.setPos(x, y);
+   				btnSearch.setPos(btnWait.right(), y);
+   				btnUndo.setPos(btnSearch.right(), y);
 
-				btnInventory.setPos(right - btnInventory.width(), y);
+   				btnInventory.setPos(right - btnInventory.width(), y);
 
 				btnQuick[0].setPos(btnInventory.left() - btnQuick[0].width(), visible[0]);
 				btnQuick[1].setPos(btnQuick[0].left() - btnQuick[1].width(), visible[1]);
@@ -196,14 +213,15 @@ public class Toolbar extends Component {
 				break;
 
 			//center = group but.. well.. centered, so all we need to do is pre-emptively set the right side further in.
-			case CENTER:
-				right = width - (width - btnWait.width() - btnSearch.width() - btnInventory.width() -
-						btnQuick[0].width() - btnQuick[1].width() - btnQuick[2].width() - btnQuick[3].width()) / 2;
+   			case CENTER:
+   				right = width - (width - btnWait.width() - btnSearch.width() - btnUndo.width() - btnInventory.width() -
+   						btnQuick[0].width() - btnQuick[1].width() - btnQuick[2].width() - btnQuick[3].width()) / 2;
 
-			case GROUP:
-				btnWait.setPos(right - btnWait.width(), y);
-				btnSearch.setPos(btnWait.left() - btnSearch.width(), y);
-				btnInventory.setPos(btnSearch.left() - btnInventory.width(), y);
+   			case GROUP:
+   				btnWait.setPos(right - btnWait.width(), y);
+   				btnSearch.setPos(btnWait.left() - btnSearch.width(), y);
+   				btnUndo.setPos(btnSearch.left() - btnUndo.width(), y);
+   				btnInventory.setPos(btnUndo.left() - btnInventory.width(), y);
 
 				btnQuick[0].setPos(btnInventory.left() - btnQuick[0].width(), visible[0]);
 				btnQuick[1].setPos(btnQuick[0].left() - btnQuick[1].width(), visible[1]);
@@ -215,9 +233,10 @@ public class Toolbar extends Component {
 
 		if (ShatteredPixelDungeon.flipToolbar()) {
 
-			btnWait.setPos((right - btnWait.right()), y);
-			btnSearch.setPos((right - btnSearch.right()), y);
-			btnInventory.setPos((right - btnInventory.right()), y);
+   			btnWait.setPos((right - btnWait.right()), y);
+   			btnSearch.setPos((right - btnSearch.right()), y);
+   			btnUndo.setPos((right - btnUndo.right()), y);
+   			btnInventory.setPos((right - btnInventory.right()), y);
 
 			for (int i = 0; i <= 3; i++) {
 				btnQuick[i].setPos(right - btnQuick[i].right(), visible[i]);
