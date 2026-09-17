@@ -20,8 +20,10 @@ import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Random;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+   import java.io.FileNotFoundException;
+   import java.io.IOException;
+
+   import com.github.epd.sprout.UndoManager;
 
 public class InterlevelScene extends PixelScene {
 
@@ -58,10 +60,11 @@ public class InterlevelScene extends PixelScene {
 	public enum Mode {
 		DESCEND, ASCEND, CONTINUE, RESURRECT, RETURN, FALL, PORT1, PORT2, PORT3, PORT4,
 		PORTSEWERS, PORTPRISON, PORTCAVES, PORTCITY, PORTHALLS, PORTCRAB, PORTTENGU, PORTCOIN, PORTBONE, RETURNSAVE,
-		JOURNAL, SOKOBANFAIL, PALANTIR
+		JOURNAL, SOKOBANFAIL, PALANTIR, UNDO
 	}
 
-	public static Mode mode;
+   	public static Mode mode;
+   	public static int undoSlot = -1;
 
 	public static int returnDepth;
 	public static int returnPos;
@@ -98,9 +101,10 @@ public class InterlevelScene extends PixelScene {
 			case ASCEND:
 				text = TXT_ASCENDING;
 				break;
-			case CONTINUE:
-				text = TXT_LOADING;
-				break;
+   			case CONTINUE:
+   			case UNDO:
+   				text = TXT_LOADING;
+   				break;
 			case RESURRECT:
 				text = TXT_RESURRECTING;
 				break;
@@ -185,9 +189,12 @@ public class InterlevelScene extends PixelScene {
 						case ASCEND:
 							ascend();
 							break;
-						case CONTINUE:
-							restore();
-							break;
+   						case CONTINUE:
+   							restore();
+   							break;
+   						case UNDO:
+   							restoreUndo();
+   							break;
 						case RESURRECT:
 							resurrect();
 							break;
@@ -423,6 +430,16 @@ public class InterlevelScene extends PixelScene {
 	private void restore() throws IOException {
 
 		Actor.fixTime();
+
+		   		int slot = undoSlot;
+   		undoSlot = -1;
+
+   		Dungeon.loadGame(UndoManager.slotGameFile(slot), true);
+   		Level level = Dungeon.loadLevel(UndoManager.slotLevelFile(slot));
+   		Dungeon.switchLevel(level, Dungeon.hero.pos);
+
+   		UndoManager.discardSlot(slot);
+   	}
 
 		Dungeon.loadGame(StartScene.curClass);
 		if (Dungeon.depth == -1) {
