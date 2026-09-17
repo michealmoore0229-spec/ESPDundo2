@@ -5,6 +5,7 @@ import com.github.epd.sprout.Assets;
 import com.github.epd.sprout.Bones;
 import com.github.epd.sprout.Dungeon;
 import com.github.epd.sprout.GamesInProgress;
+import com.github.epd.sprout.UndoManager;
 import com.github.epd.sprout.ResultDescriptions;
 import com.github.epd.sprout.Statistics;
 import com.github.epd.sprout.actors.Actor;
@@ -463,11 +464,12 @@ public class Hero extends Char {
 			super.spend(time);
 	}
 
-	public void spendAndNext(float time) {
-		busy();
-		spend(time);
-		next();
-	}
+   	public void spendAndNext(float time) {
+   		UndoManager.snapshot();
+   		busy();
+   		spend(time);
+   		next();
+   	}
 
 	@Override
 	public boolean act() {
